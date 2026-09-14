@@ -1,0 +1,584 @@
+openapi: 3.0.3
+info:
+  title: Trendhelm
+  version: 0.1.0
+  description: >-
+    Analytics transformation operating system that turns intelligent-enterprise
+    trends into a governed initiative portfolio with readiness gates and scorecards.
+  x-product-slug: ai-enterprise-trendhelm
+  x-source: ai-in-enterprise/Enterprise-Analytics-Trends-to-Watch-in-2018/
+servers:
+  - url: https://api.example.com
+tags:
+  - name: Portfolio
+    description: Trend-mapped analytics initiatives
+  - name: InsightStreams
+    description: External and owned insight stream contracts
+  - name: Tools
+    description: Tool inventory and consolidation decisions
+  - name: Talent
+    description: DSA demand and CoE capacity
+  - name: Governance
+    description: AI instruction audit and overrides
+  - name: Scorecards
+    description: Two-year transformation scorecards
+paths:
+  /v1/initiatives:
+    get:
+      operationId: listInitiatives
+      tags: [Portfolio]
+      security: [{ ApiKeyAuth: [] }, { BearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - name: trendVector
+          in: query
+          schema:
+            type: string
+            enum: [ai_innovation, talent, realtime_batch_fusion, voice_nlg, convergence, augmented_analytics, edge_video, insight_streams]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [proposed, funded, building, live, merged, killed]
+      responses:
+        "200":
+          description: Initiatives page
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ListEnvelopeInitiative" }
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createInitiative
+      tags: [Portfolio]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InitiativeCreate" }
+      responses:
+        "201":
+          description: Initiative created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataEnvelopeInitiative" }
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+  /v1/initiatives/{initiativeId}:
+    parameters:
+      - name: initiativeId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: getInitiative
+      tags: [Portfolio]
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200":
+          description: Initiative
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataEnvelopeInitiative" }
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /v1/initiatives/{initiativeId}/readiness-gates:
+    parameters:
+      - name: initiativeId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      operationId: evaluateReadinessGate
+      tags: [Portfolio]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReadinessGateEvaluation" }
+      responses:
+        "200":
+          description: Gate result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataEnvelopeReadinessGate" }
+  /v1/insight-streams:
+    get:
+      operationId: listInsightStreams
+      tags: [InsightStreams]
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Insight streams page
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ListEnvelopeInsightStreamContract" }
+    post:
+      operationId: registerInsightStream
+      tags: [InsightStreams]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InsightStreamContract" }
+      responses:
+        "201":
+          description: Stream contract registered
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataEnvelopeInsightStreamContract" }
+  /v1/tools:
+    get:
+      operationId: listTools
+      tags: [Tools]
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Tool inventory page
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ListEnvelopeToolInventoryItem" }
+  /v1/tools/consolidation-decisions:
+    post:
+      operationId: recordConsolidationDecision
+      tags: [Tools]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ConsolidationDecision" }
+      responses:
+        "201":
+          description: Consolidation decision recorded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataEnvelopeConsolidationDecision" }
+  /v1/talent/forecasts:
+    get:
+      operationId: listTalentForecasts
+      tags: [Talent]
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200":
+          description: Talent demand forecasts
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ListEnvelopeTalentDemandForecast" }
+    post:
+      operationId: createTalentForecast
+      tags: [Talent]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TalentDemandForecast" }
+      responses:
+        "201":
+          description: Forecast created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataEnvelopeTalentDemandForecast" }
+  /v1/governance/instruction-events:
+    get:
+      operationId: listInstructionEvents
+      tags: [Governance]
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: AI instruction audit events
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ListEnvelopeInstructionAuditEvent" }
+    post:
+      operationId: recordInstructionEvent
+      tags: [Governance]
+      security: [{ ApiKeyAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InstructionAuditEvent" }
+      responses:
+        "201":
+          description: Instruction recorded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataEnvelopeInstructionAuditEvent" }
+  /v1/scorecards:
+    get:
+      operationId: listScorecards
+      tags: [Scorecards]
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200":
+          description: Executive scorecards
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ListEnvelopeExecutiveScorecard" }
+    post:
+      operationId: publishScorecard
+      tags: [Scorecards]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ExecutiveScorecard" }
+      responses:
+        "201":
+          description: Scorecard published
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataEnvelopeExecutiveScorecard" }
+components:
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+  responses:
+    Unauthorized:
+      description: Missing or invalid credentials
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Problem" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Problem" }
+    UnprocessableEntity:
+      description: Validation failed
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Problem" }
+  schemas:
+    ResponseMeta:
+      type: object
+      required: [requestId, timestamp]
+      properties:
+        requestId: { type: string }
+        timestamp: { type: string, format: date-time }
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+
+    Initiative:
+      type: object
+      required: [id, name, trendVector, status, latencyMode]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        trendVector:
+          type: string
+          enum: [ai_innovation, talent, realtime_batch_fusion, voice_nlg, convergence, augmented_analytics, edge_video, insight_streams]
+        status:
+          type: string
+          enum: [proposed, funded, building, live, merged, killed]
+        latencyMode:
+          type: string
+          enum: [batch, near_realtime, realtime, predictive]
+        ownerId: { type: string }
+        outcomeKpi: { type: string }
+        killCriteria: { type: string }
+    InitiativeCreate:
+      type: object
+      required: [name, trendVector, latencyMode]
+      properties:
+        name: { type: string }
+        trendVector:
+          type: string
+          enum: [ai_innovation, talent, realtime_batch_fusion, voice_nlg, convergence, augmented_analytics, edge_video, insight_streams]
+        latencyMode:
+          type: string
+          enum: [batch, near_realtime, realtime, predictive]
+        ownerId: { type: string }
+        outcomeKpi: { type: string }
+        killCriteria: { type: string }
+    ReadinessGateEvaluation:
+      type: object
+      required: [gateType]
+      properties:
+        gateType:
+          type: string
+          enum: [data_quality, fusion_baseline, stream_contract, override_path]
+        evidence: { type: string }
+        score: { type: number, format: float }
+    ReadinessGate:
+      type: object
+      required: [initiativeId, gateType, result]
+      properties:
+        initiativeId: { type: string }
+        gateType: { type: string }
+        result:
+          type: string
+          enum: [passed, failed, waived]
+        score: { type: number, format: float }
+        detail: { type: string }
+    InsightStreamContract:
+      type: object
+      required: [id, provider, purpose, ownershipModel]
+      properties:
+        id: { type: string }
+        provider: { type: string }
+        purpose: { type: string }
+        ownershipModel:
+          type: string
+          enum: [owned, accessed]
+        retentionDays: { type: integer }
+        qualityCaveats: { type: string }
+    ToolInventoryItem:
+      type: object
+      required: [id, name, status]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        department: { type: string }
+        status:
+          type: string
+          enum: [active, overlapping, retained, merged, sunset]
+    ConsolidationDecision:
+      type: object
+      required: [toolIds, action]
+      properties:
+        id: { type: string }
+        toolIds:
+          type: array
+          items: { type: string }
+        action:
+          type: string
+          enum: [retain, merge, sunset]
+        rationale: { type: string }
+    TalentDemandForecast:
+      type: object
+      required: [function, openRoles, upskillPlan]
+      properties:
+        id: { type: string }
+        function: { type: string }
+        openRoles: { type: integer }
+        upskillPlan: { type: string }
+        coeCapacityHours: { type: integer }
+    InstructionAuditEvent:
+      type: object
+      required: [initiativeId, instruction, issuedAt]
+      properties:
+        id: { type: string }
+        initiativeId: { type: string }
+        instruction: { type: string }
+        modelOrRuleRef: { type: string }
+        issuedAt: { type: string, format: date-time }
+        overridden: { type: boolean }
+        overrideReason: { type: string }
+    ExecutiveScorecard:
+      type: object
+      required: [period, windowProgressPct]
+      properties:
+        id: { type: string }
+        period: { type: string }
+        windowProgressPct: { type: number, format: float }
+        liveInitiatives: { type: integer }
+        conversationalActiveEmployees: { type: integer }
+        externalStreamsUnderContract: { type: integer }
+        summary: { type: string }
+
+    DataEnvelopeInitiative:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/Initiative" }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+    ListEnvelopeInitiative:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: { $ref: "#/components/schemas/Initiative" }
+            nextCursor: { type: string }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+
+
+    DataEnvelopeReadinessGate:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/ReadinessGate" }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+    ListEnvelopeReadinessGate:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: { $ref: "#/components/schemas/ReadinessGate" }
+            nextCursor: { type: string }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+
+
+    DataEnvelopeInsightStreamContract:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/InsightStreamContract" }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+    ListEnvelopeInsightStreamContract:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: { $ref: "#/components/schemas/InsightStreamContract" }
+            nextCursor: { type: string }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+
+
+    DataEnvelopeToolInventoryItem:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/ToolInventoryItem" }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+    ListEnvelopeToolInventoryItem:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: { $ref: "#/components/schemas/ToolInventoryItem" }
+            nextCursor: { type: string }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+
+
+    DataEnvelopeConsolidationDecision:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/ConsolidationDecision" }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+    ListEnvelopeConsolidationDecision:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: { $ref: "#/components/schemas/ConsolidationDecision" }
+            nextCursor: { type: string }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+
+
+    DataEnvelopeTalentDemandForecast:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/TalentDemandForecast" }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+    ListEnvelopeTalentDemandForecast:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: { $ref: "#/components/schemas/TalentDemandForecast" }
+            nextCursor: { type: string }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+
+
+    DataEnvelopeInstructionAuditEvent:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/InstructionAuditEvent" }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+    ListEnvelopeInstructionAuditEvent:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: { $ref: "#/components/schemas/InstructionAuditEvent" }
+            nextCursor: { type: string }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+
+
+    DataEnvelopeExecutiveScorecard:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/ExecutiveScorecard" }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+    ListEnvelopeExecutiveScorecard:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: { $ref: "#/components/schemas/ExecutiveScorecard" }
+            nextCursor: { type: string }
+        meta: { $ref: "#/components/schemas/ResponseMeta" }
+
